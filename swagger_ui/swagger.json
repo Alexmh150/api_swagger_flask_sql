@@ -1,0 +1,477 @@
+{
+    "openapi": "2.0",
+    "info": {
+      "title": "Swagger Trips",
+      "description": "Create an API to retrieve information related to the trips taken by different vehicles, and include a city, a point of origin and a destination.",
+      "termsOfService": "http://swagger.io/terms/",
+      "contact": {
+        "email": "alexmh25@hotmail.com"
+      },
+      "version": "1.0.0"
+    },
+    "servers": [
+      {
+        "url": "http://trips/api/v3"
+      }
+    ],
+    "tags": [
+      {
+        "name": "data ingestion",
+        "description": "Automatic process to store the data"
+      },
+      {
+        "name": "trips",
+        "description": "Everything about your trips"
+      },
+      {
+        "name": "analitycs",
+        "description": "Details some analysis of the data"
+      }
+    ],
+    "paths": {
+      "/trips": {
+        "post": {
+          "tags": [
+            "trips"
+          ],
+          "summary": "Add a new trip to the store",
+          "description": "Add a new trip to the store",
+          "operationId": "AddTrip",
+          "parameters":[
+            {
+              "name": "trip_data",
+              "in": "body",
+              "description": "trip data",
+              "required": true,
+              "schema": {
+                "$ref": "#/components/schemas/trip_update"
+              }
+            }],
+          "responses": {
+            "200": {
+              "description": "Successful operation",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/trip"
+                  }
+                }
+              }
+            },
+            "405": {
+              "description": "Invalid input"
+            }
+          }
+        },
+        "get": {
+          "tags": [
+            "trips"
+          ],
+          "summary": "Finds trips by region, datasource, date. Calculate the traveled distance by the trips.",
+          "description": "Return trip based on the filters",
+          "operationId": "GetTrips",
+          "parameters": [
+            {
+              "name": "region_name",
+              "in": "query",
+              "description": "Region values that need to be considered for filter",
+              "required": false,
+              "explode": true,
+              "schema": {
+                "type": "string",
+                "example": "prague"
+              }
+            },
+            {
+              "name": "datasource_name",
+              "in": "query",
+              "description": "Datasource values that need to be considered for filter",
+              "required": false,
+              "explode": true,
+              "schema": {
+                "type": "string",
+                "example": "funny_car"
+              }
+            },
+            {
+              "name": "start_date",
+              "in": "query",
+              "description": "Start Date values that need to be considered for filter",
+              "required": false,
+              "explode": true,
+              "schema": {
+                "type": "string",
+                "format": "date-time",
+                "example": "2018-05-15"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "successful operation",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/trip"
+                    }
+                  }
+                }
+              }
+            },
+            "400": {
+              "description": "Invalid status value"
+            }
+          }
+        }
+      },
+      "/trips/{trip_id}": {
+        "get": {
+          "tags": [
+            "trips"
+          ],
+          "summary": "Find trip by ID",
+          "description": "Returns a single trip",
+          "operationId": "GetSingleTrip",
+          "parameters": [
+            {
+              "in": "path",
+              "name": "trip_id",
+              "description": "ID of trip to return",
+              "required": true,
+              "schema": {
+                "type": "integer",
+                "format": "int64",
+                "example": 10
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "successful operation",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/trip"
+                  }
+                }
+              }
+            },
+            "400": {
+              "description": "Invalid ID supplied"
+            },
+            "404": {
+              "description": "Trip not found"
+            }
+          }
+        },
+        "put": {
+          "tags": [
+            "trips"
+          ],
+          "summary": "Update one or more attributes of the existing trip",
+          "description": "Update one or more attributes of the existing trip",
+          "operationId": "updateTrip",
+          "parameters": [
+            {
+              "name": "trip_id",
+              "in": "path",
+              "description": "Trip Id to be updated",
+              "required": true,
+              "schema": {
+                "type": "integer",
+                "example": 11
+              }
+            },
+            {
+              "name": "trip_data",
+              "in": "body",
+              "description": "Updated trip data",
+              "required": true,
+              "schema": {
+                "$ref": "#/components/schemas/trip_update"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful operation",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/trip"
+                  }
+                }
+              }
+            },
+            "400": {
+              "description": "Invalid ID supplied"
+            },
+            "404": {
+              "description": "Trip not found"
+            },
+            "405": {
+              "description": "Validation exception"
+            }
+          }
+        },
+        "delete": {
+          "tags": [
+            "trips"
+          ],
+          "summary": "Deletes a trip",
+          "description": "delete a trip",
+          "operationId": "DeleteTrip",
+          "parameters": [
+            {
+              "name": "trip_id",
+              "in": "path",
+              "description": "Trip id to delete",
+              "required": true,
+              "schema": {
+                "type": "integer",
+                "format": "int64",
+                "example": 12
+              }
+            }
+          ],
+          "responses": {
+            "400": {
+              "description": "Invalid trip value"
+            }
+          }
+        }
+      },
+      "/ingest-data": {
+        "post": {
+          "tags": [
+            "data ingestion"
+          ],
+          "summary": "Create the database and ingest all necessary data (trips, dim_date, dim_region).",
+          "description": "Create the database and ingest all necessary data (trips, dim_date, dim_region).",
+          "operationId": "DataIngestion",
+          "parameters":[
+            {
+              "name": "chunk_size",
+              "in": "query",
+              "description": "Chunks to store the data",
+              "required": false,
+              "schema": {
+                "type": "interger",
+                "example": "10"
+              }  
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful operation",
+              "content": {
+                "text/event-stream": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ingestion_process"
+                  }
+                }
+              }
+            },
+            "405": {
+              "description": "Invalid input"
+            }
+          }
+        }
+      },
+      "/most-common-region": {
+        "get": {
+          "tags": [
+            "analitycs"
+          ],
+          "summary": "Details of the most common region",
+          "description": "Details of the most common region",
+          "operationId": "GetMostCommonRegion",
+          "parameters": [
+            {
+              "name": "week_number",
+              "in": "query",
+              "description": "Week to be filtered",
+              "required": false,
+              "schema": {
+                "type": "interger",
+                "example": "22"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful operation",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/common_region"
+                  }
+                }
+              }
+            },
+            "405": {
+              "description": "Invalid input"
+            }
+          }
+        }
+      },
+      "/regions/{datasource_name}": {
+        "get": {
+          "tags": [
+            "analitycs"
+          ],
+          "summary": "Details of region by datasource",
+          "description": "Details of region by datasource",
+          "operationId": "GetRegionsByDatasource",
+          "parameters": [
+            {
+              "name": "datasource_name",
+              "in": "path",
+              "description": "datasource to be filtered",
+              "required": true,
+              "schema": {
+                "type": "string",
+                "example": "cheap_mobile"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful operation",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/region_detail"
+                    },
+                    "example": [
+                      {
+                        "region_id": 1,
+                        "region_name": "prague",
+                        "region_population": 50000
+                      },
+                      {
+                        "region_id": 2,
+                        "region_name": "turin",
+                        "region_population": 89000
+                      }
+                    ]
+                  }
+                }
+              }
+            },
+            "405": {
+              "description": "Invalid input"
+            }
+          }
+        }
+      }
+    },
+    "components": {
+      "schemas": {
+        "trip": {
+          "type": "object",
+          "properties": {
+            "trip_id": {
+              "type": "integer",
+              "example": 10
+            },
+            "region_name": {
+              "type": "string",
+              "example": "Prague"
+            },
+            "origin_coord": {
+              "type": "string",
+              "example": "POINT (14.4973794438195 50.00136875782316)"
+            },
+            "destination_coord": {
+              "type": "string",
+              "example": "POINT (14.43109483523328 50.04052930943246)"
+            },
+            "datetime": {
+              "type": "string",
+              "format": "date-time",
+              "example": "2018-05-28 09:03:40"
+            },
+            "datasource_name": {
+              "type": "string",
+              "example": "funny_car"
+            }
+          }
+        },
+        "trip_update": {
+          "type": "object",
+          "properties": {
+            "region_name": {
+              "type": "string",
+              "example": "Prague"
+            },
+            "origin_coord": {
+              "type": "string",
+              "example": "POINT (14.4973794438195 50.00136875782316)"
+            },
+            "destination_coord": {
+              "type": "string",
+              "example": "POINT (14.43109483523328 50.04052930943246)"
+            },
+            "datetime": {
+              "type": "string",
+              "format": "date-time",
+              "example": "2018-05-28 09:03:40"
+            },
+            "datasource_name": {
+              "type": "string",
+              "example": "funny_car"
+            }
+          }
+        },
+        "ingestion_process": {
+          "type": "object",
+          "properties": {
+            "message": {
+              "type": "string",
+              "example": "Ingested 50% of the data"
+            }
+          }
+        },
+        "common_region": {
+          "type": "object",
+          "properties": {
+            "region_name": {
+              "type": "string",
+              "example": "prague"
+            },
+            "num_trips": {
+              "type": "integer",
+              "example": 100
+            },
+            "last_trip_date": {
+              "type": "string",
+              "format": "date-time",
+              "example": "2018-05-28 09:03:40"
+            }
+          }
+        },
+        "region_detail": {
+          "type": "object",
+          "properties": {
+            "region_id": {
+              "type": "integer",
+              "example": 1
+            },
+            "region_name": {
+              "type": "string",
+              "example": "prague"
+            },
+            "region_population": {
+              "type": "integer",
+              "example": 50000
+            }
+          }
+        }
+      }
+    }
+  }
