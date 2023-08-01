@@ -5,8 +5,11 @@ import pandas as pd
 import datetime, random
 
 # Read csv file
-def read_file(file_name):
+def read_file(file_name,n_times):
     df = pd.read_csv(file_name)
+    if n_times > 1:
+        df = pd.concat([df]*n_times)
+
     return df
 
 # create trip df

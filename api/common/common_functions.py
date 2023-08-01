@@ -1,5 +1,21 @@
 import math
 
+# pagination
+def paginate_query_result(query_result, page=1, per_page=10):
+    total_items = query_result.count()  # Get the total number of items in the query result
+    total_pages = (total_items + per_page - 1) // per_page  # Calculate the total number of pages
+    offset = (page - 1) * per_page  # Calculate the offset for pagination
+    query_paginated = query_result.offset(offset).limit(per_page)  # Get the paginated data
+
+    # Return the paginated data along with pagination information
+    response = {
+        'total_items': total_items,
+        'total_pages': total_pages,
+        'current_page': page
+    }
+
+    return response, query_paginated
+
 # Calculate the distance using haversine formula
 def haversine_distance(lat1, lon1, lat2, lon2):
     lat1, lon1, lat2, lon2 = map(math.radians, [lat1, lon1, lat2, lon2])

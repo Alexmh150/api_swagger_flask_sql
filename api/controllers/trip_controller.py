@@ -3,7 +3,8 @@ from create_database.models import Trip, DimRegion, DimDatasource
 from datetime import datetime
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from api.common.common_functions import calculate_distance
+from api.common.common_functions import calculate_distance, paginate_query_result
+import time
 
 # Create blueprint to be modular
 trip_bp = Blueprint('trip_bp', __name__)
@@ -17,10 +18,15 @@ Session = sessionmaker(bind=engine)
 @trip_bp.route('/trips', methods=['GET'])
 def get_trips():
     try:
+        start_time = time.time()
+
         # Extract parameters from the request URL
-        region_name = request.args.get('region_name').lower()
+        region_name = request.args.get('region_name')
         start_date = request.args.get('start_date')
-        datasource_name = request.args.get('datasource_name').lower()
+        datasource_name = request.args.get('datasource_name')
+        page_number = int(request.args.get('page_number',1))
+        page_size = int(request.args.get('page_size',10))
+    
 
         # Establish connetion
         session = Session()
@@ -32,16 +38,17 @@ def get_trips():
 
         # Validate if parameters were provided to add in the query
         if region_name is not None:
-            query = query.filter(DimRegion.region_name == region_name)
+            query = query.filter(DimRegion.region_name == region_name.lower())
         
         if start_date is not None:
             query = query.filter(Trip.datetime>=start_date)
         
         if datasource_name is not None:
-            query = query.filter(DimDatasource.datasource_name == datasource_name)
+            query = query.filter(DimDatasource.datasource_name == datasource_name.lower())
 
+        response, query_paginated = paginate_query_result(query,page_number,page_size)
         # Retrieve data
-        trips = query.all()
+        trips = query_paginated.all()
         session.close()
 
         if not trips:
@@ -62,11 +69,12 @@ def get_trips():
             }
             trip_list.append(trip_data)
 
-        response = {
-            "num_records" : len(trips),
-            "distance traveled" : distance,
-            "data" : trip_list
-        }
+        end_time = time.time()
+        execution_time = end_time - start_time
+
+        response['distance_traveled'] = distance
+        response['data'] = trip_list
+        response['execution_time'] = execution_time
 
         return jsonify(response), 200
 

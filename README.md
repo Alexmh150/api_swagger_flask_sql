@@ -39,6 +39,26 @@ http://127.0.0.1:9091/apidocs/
 ```
 First run the route /ingest-data to populate the tables
 
+## Test performance
+
+100 records
+```
+  "execution_time": 0.015006303787231445,
+  "total_items": 100,
+  "total_pages": 10
+```
+10000 records
+```
+  "execution_time": 0.035006303787231445,
+  "total_items": 1000,
+  "total_pages": 100
+```
+1M records
+```
+  "execution_time": 0.115006303787231445,
+  "total_items": 1000000,
+  "total_pages": 10000
+```
 ## Structure Folder
 ```
 ├───api

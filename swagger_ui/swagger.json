@@ -104,6 +104,28 @@
                 "format": "date-time",
                 "example": "2018-05-15"
               }
+            },
+            {
+              "name": "page_number",
+              "in": "query",
+              "description": "Page to show",
+              "required": false,
+              "explode": true,
+              "schema": {
+                "type": "integer",
+                "example": "1"
+              }
+            },
+            {
+              "name": "page_size",
+              "in": "query",
+              "description": "Number of records per page",
+              "required": false,
+              "explode": true,
+              "schema": {
+                "type": "integer",
+                "example": "10"
+              }
             }
           ],
           "responses": {
@@ -260,6 +282,16 @@
               "schema": {
                 "type": "interger",
                 "example": "10"
+              }  
+            },
+            {
+              "name": "n_times",
+              "in": "query",
+              "description": "N replicates of rows",
+              "required": false,
+              "schema": {
+                "type": "interger",
+                "example": "1"
               }  
             }
           ],

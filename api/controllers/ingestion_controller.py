@@ -10,7 +10,9 @@ ingestion_bp = Blueprint('ingestion_bp', __name__)
 def data_ingestion():
     
     # Get parameters from api
-    chunksize = int(request.args.get('chunk_size'))
+    chunksize = int(request.args.get('chunk_size',10))
+    n_times = int(request.args.get('n_times',1))
+
     # Declare file_name, database
     file_name = "data_source/trips.csv"
     database_name = "database.db"
@@ -20,7 +22,7 @@ def data_ingestion():
         create_database(database_name) 
 
         # Call methods to store the data in the corresponding tables
-        df = read_file(file_name)
+        df = read_file(file_name, n_times)
         df = create_store_region_table(df,database_name=database_name, model=DimRegion)
         df = create_store_datasource_table(df,database_name=database_name, model=DimDatasource)
         df = create_trip_df(df)
