@@ -1,0 +1,6 @@
+api/common/__pycache__/common_functions.cpython-310.pyc
+api/controllers/__pycache__/analitycs_controller.cpython-310.pyc
+api/controllers/__pycache__/ingestion_controller.cpython-310.pyc
+create_database/__pycache__/models.cpython-310.pyc
+api/controllers/__pycache__/trip_controller.cpython-310.pyc
+etl_process/__pycache__/etl_process.cpython-310.pyc
